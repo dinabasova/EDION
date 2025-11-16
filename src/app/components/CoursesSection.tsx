@@ -24,7 +24,7 @@ export default function CoursesSection() {
 
   return (
     <div>
-      <h2 className="text-3xl font-semibold">Courses we provide</h2>
+      <h2 className="text-4xl font-bold text-[#860021]">Courses we provide</h2>
       <p className="mt-2 text-sm text-[#3b3c55]/70 max-w-xl">
         Choose the path that fits your goals.
       </p>

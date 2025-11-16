@@ -11,8 +11,9 @@ export default function Footer() {
           </div>
   
           <div className="text-sm space-y-2">
-            <p>Telefon: +994 XX XXX XX XX</p>
-            <p>Email: info@edionaz.com</p>
+            <p>Telefon: +994 10 712 78 88
+            </p>
+            <p>Email: learnedionaz@gmail.com</p>
             <p>Join us on Telegram</p>
           </div>
         </div>

@@ -5,3 +5,100 @@
 html {
   scroll-behavior: smooth;
 }
+
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 20px; 
+}
+
+::-webkit-scrollbar-track {
+  background: #fffaef;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color:  #860021; 
+  border-radius: 10px;
+  border: 3px solid #fffaef; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #860021;
+}
+
+
+::selection {
+  background: #f8d5d8; 
+  color: #860021;  
+}
+
+::-moz-selection {
+  background: #f8d5d8;
+  color: #860021;
+}
+
+
+
+
+/* NAVBAR LINK  */
+.nav-link {
+  display: inline-block;
+  min-width: 70px;   
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #860021;
+  font-weight: 600;
+}
+
+
+
+
+/* LOGIN & SIGNUP BUTTONS */
+.btn-outline,
+.btn-fill {
+  width: 95px;    
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  display: inline-block;  
+}
+
+/* Login button */
+.btn-outline {
+  border: 1px solid #860021;
+  color: #860021;
+  background: transparent;
+}
+
+.btn-outline:hover {
+  font-weight: 600;  
+  box-shadow: 0 0 8px rgba(134, 0, 33, 0.25); 
+}
+
+/* Sign up button */
+.btn-fill {
+  background: #860021;
+  color: #fffaef;
+}
+
+.btn-fill:hover {
+  font-weight: 600;         
+  background: #7a001d;        
+  box-shadow: 0 0 10px rgba(134, 0, 33, 0.35); 
+}
+
+
+
+
+.consultation:hover {
+  box-shadow: 0 0 8px rgba(134, 0, 33, 0.25); 
+}
+
+.demo:hover {
+  background: #7a001d;     
+  box-shadow: 0 0 10px rgba(134, 0, 33, 0.35); 
+}

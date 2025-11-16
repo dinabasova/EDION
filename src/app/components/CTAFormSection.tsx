@@ -31,7 +31,7 @@ export default function CTAFormSection() {
           </div>
 
           <div>
-            <label className="text-xs font-medium">E-mail (istəyə görə)</label>
+            <label className="text-xs font-medium">E-mail</label>
             <input
               type="email"
               className="w-full rounded-xl border border-[#3b3c55]/20 px-3 py-2 mt-1"

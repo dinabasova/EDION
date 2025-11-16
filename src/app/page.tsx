@@ -13,11 +13,11 @@ export default function HomePage() {
       <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-24">
-        <section id="home">
+        <section id="home" className="py-20">
           <Hero />
         </section>
 
-        <section id="social-media" className="py-20">
+        <section id="social-media" className="py-10">
           <SocialMediaSection />
         </section>
 

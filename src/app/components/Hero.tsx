@@ -23,13 +23,13 @@ export default function Hero() {
         <div className="flex gap-4 flex-wrap">
           <a
             href="#contact"
-            className="rounded-full bg-[#860021] px-6 py-3 text-sm text-[#fffaef]"
+            className="demo rounded-full bg-[#860021] px-6 py-3 text-sm text-[#fffaef]"
           >
             Sınaq dərsə qoşul
           </a>
           <a
             href="#contact"
-            className="rounded-full border border-[#860021] px-6 py-3 text-sm text-[#860021]"
+            className="consultation rounded-full border border-[#860021] px-6 py-3 text-sm text-[#860021]"
           >
             Konsultasiyaya qoşul
           </a>
