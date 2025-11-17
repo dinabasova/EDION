@@ -3,6 +3,7 @@ import Hero from "../app/components/Hero";
 import SocialMediaSection from "../app/components/SocialMediaSection";
 import CoursesSection from "../app/components/CoursesSection";
 import TeachersSection from "../app/components/TeachersSection";
+import MentorsSection from "../app/components/MentorsSection";
 import FAQSection from "../app/components/FAQSection";
 import CTAFormSection from "../app/components/CTAFormSection";
 import Footer from "../app/components/Footer";
@@ -29,6 +30,9 @@ export default function HomePage() {
           <TeachersSection />
         </section>
 
+        <section id="mentors" className="py-20">
+          <MentorsSection />
+        </section>
         <section id="faq" className="py-20">
           <FAQSection />
         </section>
