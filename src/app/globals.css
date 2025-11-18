@@ -6,6 +6,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* optional helper if you want a single class */
+.smooth-transition {
+  transition: all 0.2s linear;
+}
+
 
 /* Scrollbar */
 ::-webkit-scrollbar {
@@ -74,7 +79,7 @@ html {
   background: transparent;
 }
 
-.btn-outline:hover {
+.btn-outline:hover{
   font-weight: 600;  
   box-shadow: 0 0 8px rgba(134, 0, 33, 0.25); 
 }
@@ -91,9 +96,6 @@ html {
   box-shadow: 0 0 10px rgba(134, 0, 33, 0.35); 
 }
 
-
-
-
 .consultation:hover {
   box-shadow: 0 0 8px rgba(134, 0, 33, 0.25); 
 }
@@ -102,3 +104,31 @@ html {
   background: #7a001d;     
   box-shadow: 0 0 10px rgba(134, 0, 33, 0.35); 
 }
+
+.demo2:hover {
+  font-weight: 600;   
+  background: #7a001d;    
+  box-shadow: 0 0 10px rgba(134, 0, 33, 0.25); 
+}
+
+.consultation2:hover {
+  font-weight: 600;   
+  box-shadow: 0 0 8px rgba(134, 0, 33, 0.35); 
+}
+
+.mentors:hover {
+  box-shadow: 0 4px 12px rgba(134, 0, 33, 0.15);
+  border: 1.5px solid #860021;
+  
+}
+
+.form {
+  border: 1.5px solid #3b3c5520;
+  transition: all 0.2s linear;
+}
+
+.form:hover {
+  box-shadow: 0 4px 16px rgba(134, 0, 33, 0.2);
+  border-color: #860021;   
+}
+

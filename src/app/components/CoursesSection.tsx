@@ -1,5 +1,7 @@
 "use client";
+
 import { useState } from "react";
+import AosWrapper from "./AosWrapper";
 
 const COURSES = [
   {
@@ -20,35 +22,57 @@ const COURSES = [
 ];
 
 export default function CoursesSection() {
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(COURSES[0].id);
 
   return (
-    <div>
-      <h2 className="text-4xl font-bold text-[#860021]">Courses we provide</h2>
-      <p className="mt-2 text-sm text-[#3b3c55]/70 max-w-xl">
-        Choose the path that fits your goals.
-      </p>
+    <section id="courses">
+      <AosWrapper type="fade-up" delayMs={150}>
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#860021]">
+          Courses we provide
+        </h2>
+        <p className="mt-2 text-sm text-[#3b3c55]/75 max-w-xl">
+          Choose the path that fits your goals.
+        </p>
+      </AosWrapper>
 
-      <div className="mt-10 space-y-4">
-        {COURSES.map(course => (
-          <div
-            key={course.id}
-            onClick={() => setOpen(open === course.id ? null : course.id)}
-            className="cursor-pointer rounded-2xl bg-white border border-[#3b3c55]/10 p-5 hover:shadow-md transition"
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">{course.title}</h3>
-              <span className="text-xl text-[#860021]">
-                {open === course.id ? "–" : "+"}
-              </span>
-            </div>
+      <div className="mt-8 space-y-4">
+        {COURSES.map((course, index) => {
+          const isOpen = open === course.id;
+          const delayMs = 150 + (index + 1) * 150; // 300, 450, 600...
 
-            {open === course.id && (
-              <p className="mt-3 text-sm text-[#3b3c55]/80">{course.desc}</p>
-            )}
-          </div>
-        ))}
+          return (
+            <AosWrapper
+              key={course.id}
+              type="fade-up"
+              delayMs={delayMs}
+              className="smooth-transition"
+            >
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : course.id)}
+                className="w-full text-left bg-white border border-[#3b3c55]/15 rounded-2xl px-5 py-4 transition-all duration-200 ease-linear hover:-translate-y-[3px] hover:shadow-lg"
+              >
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-lg font-semibold">
+                    {course.title}
+                  </span>
+                  <span className="text-2xl text-[#860021]">
+                    {isOpen ? "–" : "+"}
+                  </span>
+                </div>
+
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isOpen ? "max-h-40 mt-2" : "max-h-0"
+                  }`}
+                >
+                  <p className="text-sm text-[#3b3c55]/80">{course.desc}</p>
+                </div>
+              </button>
+            </AosWrapper>
+          );
+        })}
       </div>
-    </div>
+    </section>
   );
 }
