@@ -77,6 +77,7 @@ export default function Footer() {
                   ["Home", "#home"],
                   ["Courses", "#courses"],
                   ["Teachers", "#teachers"],
+                  ["Mentors", "#mentors"],
                   ["FAQ", "#faq"],
                   ["Contact", "#contact"],
                 ].map(([label, href], i) => (
@@ -123,7 +124,9 @@ export default function Footer() {
                   <AosWrapper key={i} type="fade-left" delayMs={400 + i * 60}>
                     <div className="flex items-center gap-3">
                       <Icon />
-                      <span>{text}</span>
+                      <span>
+                        {text}
+                      </span>
                     </div>
                   </AosWrapper>
                 ))}

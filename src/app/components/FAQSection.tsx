@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AosWrapper from "./AosWrapper";
+import { PlusIcon } from "./icons/PlusIcon";
 
 const faqs = [
   { q: "Как происходит работа?", a: "Ваш ответ здесь..." },
@@ -53,13 +54,12 @@ export default function FAQSection() {
                       isHover ? "bg-[#860021]" : ""
                     }`}
                   >
-                    <span
-                      className={`text-3xl font-light transition-all duration-200 ${
-                        isHover ? "text-white" : "text-[#860021]"
-                      } ${isOpen ? "rotate-45" : ""}`}
-                    >
-                      +
-                    </span>
+                    <PlusIcon
+  className={`transition-all duration-300 transform ${
+    isOpen ? "rotate-45" : ""
+  } ${isHover ? "text-white" : "text-[#860021]"}`}
+  color={isHover ? "#ffffff" : "#860021"}
+/>
                   </div>
                 </button>
 
