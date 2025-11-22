@@ -6,7 +6,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* optional helper if you want a single class */
 .smooth-transition {
   transition: all 0.2s linear;
 }

@@ -38,7 +38,7 @@ export default function CoursesSection() {
       <div className="mt-8 space-y-4">
         {COURSES.map((course, index) => {
           const isOpen = open === course.id;
-          const delayMs = 150 + (index + 1) * 150; // 300, 450, 600...
+          const delayMs = 150 + (index + 1) * 150; 
 
           return (
             <AosWrapper

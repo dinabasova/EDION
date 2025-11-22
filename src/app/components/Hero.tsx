@@ -4,7 +4,7 @@ import AosWrapper from "./AosWrapper";
 
 export default function Hero() {
   return (
-    <section className="min-h-[70vh] flex flex-col lg:flex-row items-center gap-12">
+    <section className="min-h-[64vh] flex flex-col lg:flex-row items-center gap-12">
       {/* LEFT: text */}
       <div className="flex-1 space-y-6">
         <AosWrapper type="fade-up" delayMs={150}>

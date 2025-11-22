@@ -15,6 +15,10 @@ import {
   LinkedinIcon,
 } from "./icons/SocialIcons";
 
+
+
+
+
 export default function Footer() {
   return (
     <>
@@ -35,23 +39,29 @@ export default function Footer() {
 
               {/* SOCIAL ICONS */}
               <div className="flex items-center gap-4 mt-4">
-                {[InstagramIcon, XIcon, FacebookIcon, LinkedinIcon].map(
-                  (Icon, i) => (
-                    <AosWrapper key={i} type="zoom-in" delayMs={200 + i * 80}>
-                      <a
-                        href="#"
-                        className="
-                          h-12 w-12 flex items-center justify-center rounded-full
-                          border-2 border-[#860021] text-[#860021]
-                          hover:bg-[#860021] hover:text-[#fffaef]
-                          transition-all duration-300 hover:scale-110
-                        "
-                      >
-                        <Icon />
-                      </a>
-                    </AosWrapper>
-                  )
-                )}
+                {[
+                  { icon: InstagramIcon, url: "https://www.instagram.com/edionaz/" },
+                  { icon: XIcon, url: "https://x.com/yourprofile" },
+                  { icon: FacebookIcon, url: "https://www.facebook.com/edionaz/" },
+                  { icon: LinkedinIcon, url: "https://www.linkedin.com/company/edionaz/" },
+                ].map(({ icon: Icon, url }, i) => (
+                  <AosWrapper key={i} type="zoom-in" delayMs={200 + i * 80}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        h-12 w-12 flex items-center justify-center rounded-full
+                        border-2 border-[#860021] text-[#860021]
+                        hover:bg-[#860021] hover:text-[#fffaef]
+                        transition-all duration-300 hover:scale-110
+                      "
+                    >
+                      <Icon />
+                    </a>
+                  </AosWrapper>
+                ))}
+                
               </div>
 
               {/* LANGUAGE SWITCH */}

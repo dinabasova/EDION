@@ -1,0 +1,29 @@
+POST http://localhost:3000/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Diana",
+  "email": "diaasdlsaqawnna2@example.com",
+  "username": "dinabbasova",
+  "password": "123sdn456"
+}
+
+
+######
+
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "diaasdlsaqawnna2@example.com",
+  "password": "123sdn456"
+}
+
+
+######
+
+GET http://localhost:3000/api/protected/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtaTlqOHVkdjAwMDBveGRxYW5xaWIyY2siLCJlbWFpbCI6ImRpYWFzZGxzYXFhd25uYTJAZXhhbXBsZS5jb20iLCJpYXQiOjE3NjM3NzAyMjEsImV4cCI6MTc2NDM3NTAyMX0.KAoG4O_4mNaGMUSbGV14ecfBwwJ4gvNJwLQMs7B7ocU
+
+#####
