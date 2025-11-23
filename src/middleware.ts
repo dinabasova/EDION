@@ -13,12 +13,20 @@ type JwtUserPayload = {
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // Protect ADMIN pages
-  if (path.startsWith("/admin")) {
+  const isAdminPage = path.startsWith("/admin");
+  const isAdminApi = path.startsWith("/api/admin");
+
+  // Admin protection (pages + API)
+  if (isAdminPage || isAdminApi) {
     const authHeader = req.headers.get("authorization");
 
     if (!authHeader) {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
+      // If it's a page → redirect
+      if (isAdminPage) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
+      // If it's an API → return JSON
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const token = authHeader.split(" ")[1];
@@ -27,10 +35,16 @@ export function middleware(req: NextRequest) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtUserPayload;
 
       if (decoded.role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
+        if (isAdminPage) {
+          return NextResponse.redirect(new URL("/", req.url));
+        }
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
     } catch {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
+      if (isAdminPage) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
   }
 
@@ -38,5 +52,9 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/protected/:path*", "/admin/:path*"],
+  matcher: [
+    "/api/protected/:path*",
+    "/admin/:path*",
+    "/api/admin/:path*",
+  ],
 };

@@ -25,6 +25,14 @@ export async function POST(req: Request) {
       );
     }
 
+
+    if (!user.verified) {
+      return NextResponse.json(
+        { error: "Please verify your email before logging in." },
+        { status: 403 }
+      );
+    }
+
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
@@ -39,8 +47,6 @@ export async function POST(req: Request) {
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
-
-
 
     return NextResponse.json({
       message: "Login successful",

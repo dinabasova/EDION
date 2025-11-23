@@ -14,11 +14,39 @@ model User {
   username     String   @unique
   password     String
   role         String   @default("user")  // NEW LINE
+  verified     Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   conversations  Conversation[]
+  emailVerificationTokens  EmailVerificationToken[]
+  passwordResetTokens  PasswordResetToken[] 
 }
+
+
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
 
 model Conversation {
   id        String      @id @default(cuid())
@@ -45,5 +73,6 @@ model ContactRequest {
   email     String
   message   String?
   type      String   // "trial" or "consultation"
+  status    String   @default("new")  // "new" or "done"
   createdAt DateTime @default(now())
 }

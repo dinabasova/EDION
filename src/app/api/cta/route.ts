@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // simple email check
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // save to DB
+
     const record = await prisma.contactRequest.create({
       data: {
         name,
@@ -45,10 +45,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // send email if Resend is configured
+
     if (resend && ctaRecipient) {
       await resend.emails.send({
-        from: "Edionaz <no-reply@edionaz.com>",
+        from: "Edionaz <onboarding@resend.dev>",
         to: [ctaRecipient],
         subject:
           type === "trial"

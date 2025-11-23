@@ -13,9 +13,7 @@ export default function SignupPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
-  // Validation messages
   const [errors, setErrors] = useState({
     name: "",
     username: "",
@@ -23,37 +21,37 @@ export default function SignupPage() {
     password: "",
   });
 
+  const [success, setSuccess] = useState<string | null>(null);
+
   function validateEmail(value: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function validatePassword(value: string) {
-    const longEnough = value.length >= 15;
-    const strong =
-      value.length >= 8 &&
-      /[a-z]/.test(value) &&
-      /\d/.test(value);
 
-    return longEnough || strong;
+  function validatePassword(value: string) {
+    return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(value);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSuccess(null);
 
     const newErrors = { name: "", username: "", email: "", password: "" };
 
     if (!email) newErrors.email = "Email cannot be blank";
-    else if (!validateEmail(email)) newErrors.email = "Enter a valid email address";
+    else if (!validateEmail(email))
+      newErrors.email = "Enter a valid email address";
 
     if (!password) newErrors.password = "Password cannot be blank";
-    else if (!validatePassword(password)) newErrors.password = "Password is too short";
+    else if (!validatePassword(password))
+      newErrors.password =
+        "Password must be at least 8 characters and include an uppercase letter and a number.";
 
     if (!username) newErrors.username = "Username cannot be blank";
     if (!name) newErrors.name = "Name cannot be blank";
 
     setErrors(newErrors);
 
-    // Stop if any error
     if (Object.values(newErrors).some((e) => e !== "")) return;
 
     try {
@@ -66,15 +64,32 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.error.includes("email")) {
-          setErrors((prev) => ({ ...prev, email: data.error }));
-        } else if (data.error.includes("username")) {
-          setErrors((prev) => ({ ...prev, username: data.error }));
+        const errorMsg = data.error || "";
+
+        if (errorMsg.toLowerCase().includes("email")) {
+          setErrors((prev) => ({ ...prev, email: errorMsg }));
+        } else if (errorMsg.toLowerCase().includes("username")) {
+          setErrors((prev) => ({ ...prev, username: errorMsg }));
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            email: errorMsg || "Something went wrong.",
+          }));
         }
+
         return;
       }
 
-      router.push("/auth/login");
+      setName("");
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setErrors({ name: "", username: "", email: "", password: "" });
+
+
+      setSuccess(
+        "Registration successful. Please check your email to verify your account."
+      );
     } catch {
       setErrors((prev) => ({
         ...prev,
@@ -85,7 +100,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#fffaef]">
-
       {/* LEFT IMAGE */}
       <div className="hidden lg:flex items-center justify-center relative bg-[#fffaef] group">
         <div className="relative w-[90%] h-[90%] max-w-[900px] max-h-[900px] rounded-3xl overflow-hidden 
@@ -139,15 +153,23 @@ export default function SignupPage() {
           </div>
 
           {/* Description */}
-          <p className="text-sm text-[#3b3c55]/70 mb-6">
+          <p className="text-sm text-[#3b3c55]/70 mb-4">
             Create your account and start learning confidently.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* SUCCESS MESSAGE */}
+          {success && (
+            <div className="mb-4 text-xs text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+              {success}
+            </div>
+          )}
 
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* NAME */}
             <div>
-              <label className="text-xs font-medium text-[#3b3c55]/80">Full Name*</label>
+              <label className="text-xs font-medium text-[#3b3c55]/80">
+                Full Name*
+              </label>
               <input
                 type="text"
                 placeholder="Your name"
@@ -163,7 +185,9 @@ export default function SignupPage() {
 
             {/* EMAIL */}
             <div>
-              <label className="text-xs font-medium text-[#3b3c55]/80">Email*</label>
+              <label className="text-xs font-medium text-[#3b3c55]/80">
+                Email*
+              </label>
               <input
                 type="text"
                 placeholder="Email"
@@ -179,7 +203,9 @@ export default function SignupPage() {
 
             {/* PASSWORD */}
             <div>
-              <label className="text-xs font-medium text-[#3b3c55]/80">Password*</label>
+              <label className="text-xs font-medium text-[#3b3c55]/80">
+                Password*
+              </label>
 
               <div className="relative">
                 <input
@@ -196,16 +222,17 @@ export default function SignupPage() {
                 <p className="text-red-600 text-xs mt-1">⚠ {errors.password}</p>
               )}
 
-              {/* PASSWORD RULES */}
               <p className="text-xs text-[#3b3c55]/60 mt-1">
-                Password should be at least <strong>15 characters</strong> OR at least
-                <strong> 8 characters</strong> including a number and a lowercase letter.
+                Password must be at least <strong>8 characters</strong> and
+                include an uppercase letter and a number.
               </p>
             </div>
 
             {/* USERNAME */}
             <div>
-              <label className="text-xs font-medium text-[#3b3c55]/80">Username*</label>
+              <label className="text-xs font-medium text-[#3b3c55]/80">
+                Username*
+              </label>
               <input
                 type="text"
                 placeholder="Username"
@@ -227,9 +254,7 @@ export default function SignupPage() {
             >
               Register
             </button>
-
           </form>
-
         </div>
       </div>
     </div>

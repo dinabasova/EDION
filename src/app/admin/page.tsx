@@ -1,27 +1,171 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ContactRequest } from "@prisma/client";
+import * as XLSX from "xlsx";
 
+type SortField = "createdAt" | "name" | "email" | "type";
+type SortDirection = "asc" | "desc";
+type TypeFilter = "all" | "trial" | "consultation";
+type StatusFilter = "all" | "new" | "done";
 
 export default function AdminPage() {
   const [data, setData] = useState<ContactRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [sortField, setSortField] = useState<SortField>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Fetch CTA submissions
   useEffect(() => {
     const token = localStorage.getItem("edionaz_token");
 
     fetch("/api/admin/cta", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      });
+      .then((res: ContactRequest[]) => setData(res))
+      .finally(() => setLoading(false));
   }, []);
+
+    // Filter + Search + Sort
+  const visibleData = useMemo(() => {
+    let list = [...data];
+
+    // filter by type (trial/consultation)
+    if (typeFilter !== "all") {
+      list = list.filter((i) => i.type === typeFilter);
+    }
+
+    // filter by status (new/done)
+    if (statusFilter !== "all") {
+      list = list.filter((i) => i.status === statusFilter);
+    }
+
+    // search
+    if (searchTerm.trim().length > 0) {
+      const term = searchTerm.toLowerCase();
+
+      list = list.filter((i) => {
+        const message = i.message ?? "";
+        return (
+          i.name.toLowerCase().includes(term) ||
+          i.email.toLowerCase().includes(term) ||
+          i.phone.toLowerCase().includes(term) ||
+          i.type.toLowerCase().includes(term) ||
+          message.toLowerCase().includes(term)
+        );
+      });
+    }
+
+    // sorting
+    list.sort((a, b) => {
+      let aVal: string | number | Date = "";
+      let bVal: string | number | Date = "";
+
+      switch (sortField) {
+        case "createdAt":
+          aVal = new Date(a.createdAt).getTime();
+          bVal = new Date(b.createdAt).getTime();
+          break;
+        case "name":
+          aVal = a.name.toLowerCase();
+          bVal = b.name.toLowerCase();
+          break;
+        case "email":
+          aVal = a.email.toLowerCase();
+          bVal = b.email.toLowerCase();
+          break;
+        case "type":
+          aVal = a.type.toLowerCase();
+          bVal = b.type.toLowerCase();
+          break;
+      }
+
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return list;
+  }, [data, sortField, sortDirection, typeFilter, statusFilter, searchTerm]);
+
+  // sort toggle
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }
+
+  // delete submission
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm("Bu məlumatı silmək istəyirsiniz?");
+    if (!confirmed) return;
+
+    const token = localStorage.getItem("edionaz_token");
+
+    const res = await fetch(`/api/admin/cta/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      alert("Silinmə zamanı xəta baş verdi.");
+      return;
+    }
+
+    setData((prev) => prev.filter((item) => item.id !== id));
+  }
+
+  // mark as done
+  async function handleMarkDone(id: string) {
+    const token = localStorage.getItem("edionaz_token");
+
+    const res = await fetch(`/api/admin/cta/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: "done" }),
+    });
+
+    if (!res.ok) {
+      alert("Status yenilənərkən xəta baş verdi.");
+      return;
+    }
+
+    const updated: ContactRequest = await res.json();
+
+    setData((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item))
+    );
+  }
+
+  // export to Excel
+  function handleExcelExport() {
+    const rows = visibleData.map((i) => ({
+      Name: i.name,
+      Phone: i.phone,
+      Email: i.email,
+      Type: i.type === "trial" ? "Sınaq dərsi" : "Konsultasiya",
+      Status: i.status === "done" ? "Tamamlanıb" : "Yeni",
+      Message: i.message ?? "",
+      Date: new Date(i.createdAt).toLocaleString("az-AZ"),
+    }));
+
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, "Submissions");
+
+    XLSX.writeFile(book, "edionaz_cta_submissions.xlsx");
+  }
 
   return (
     <div className="p-10">
@@ -29,45 +173,169 @@ export default function AdminPage() {
         CTA Form Submissions
       </h1>
 
+      {/* controls */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        {/* type filter */}
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+          className="border px-3 py-1 rounded-full text-sm"
+        >
+          <option value="all">Hamısı (tip)</option>
+          <option value="trial">Sınaq dərsi</option>
+          <option value="consultation">Konsultasiya</option>
+        </select>
+
+        {/* status filter */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+          className="border px-3 py-1 rounded-full text-sm"
+        >
+          <option value="all">Hamısı (status)</option>
+          <option value="new">Yeni</option>
+          <option value="done">Tamamlanıb</option>
+        </select>
+
+        {/* search */}
+        <input
+          type="text"
+          placeholder="Axtarış..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border px-3 py-1 rounded-full text-sm"
+        />
+
+        {/* export */}
+        <button
+          onClick={handleExcelExport}
+          className="rounded-full bg-[#3b3c55] text-white px-4 py-1 text-sm"
+        >
+          Excel-ə eksport et
+        </button>
+      </div>
+
       {loading && <p>Loading...</p>}
 
-      {!loading && data.length === 0 && (
-        <p>No submissions yet.</p>
-      )}
+      {!loading && visibleData.length === 0 && <p>No submissions found.</p>}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 rounded-lg">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Phone</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Type</th>
-              <th className="p-3 text-left">Message</th>
-              <th className="p-3 text-left">Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {data.map((item) => (
-              <tr key={item.id} className="border-t">
-                <td className="p-3">{item.name}</td>
-                <td className="p-3">{item.phone}</td>
-                <td className="p-3">{item.email}</td>
-                <td className="p-3">
-                  {item.type === "trial"
-                    ? "Sınaq dərsi"
-                    : "Konsultasiya"}
-                </td>
-                <td className="p-3">{item.message}</td>
-                <td className="p-3">
-                  {new Date(item.createdAt).toLocaleString("az-AZ")}
-                </td>
+      {!loading && visibleData.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300 rounded-lg text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <SortableHeader
+                  label="Name"
+                  field="name"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <th className="p-3 text-left">Phone</th>
+                <SortableHeader
+                  label="Email"
+                  field="email"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <SortableHeader
+                  label="Type"
+                  field="type"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Message</th>
+                <SortableHeader
+                  label="Date"
+                  field="createdAt"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <th className="p-3 text-left">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {visibleData.map((item) => (
+                <tr key={item.id} className="border-t">
+                  <td className="p-3">{item.name}</td>
+                  <td className="p-3">{item.phone}</td>
+                  <td className="p-3">{item.email}</td>
+                  <td className="p-3">
+                    {item.type === "trial" ? "Sınaq dərsi" : "Konsultasiya"}
+                  </td>
+                  <td className="p-3">
+                    {item.status === "done" ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">
+                        Tamamlanıb
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-xs">
+                        Yeni
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-3">{item.message}</td>
+                  <td className="p-3">
+                    {new Date(item.createdAt).toLocaleString("az-AZ")}
+                  </td>
+                  <td className="p-3 space-x-2">
+                    {item.status !== "done" && (
+                      <button
+                        onClick={() => handleMarkDone(item.id)}
+                        className="text-xs text-green-700 hover:underline"
+                      >
+                        Mark as done
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
-  )
+  );
+}
+
+interface SortableHeaderProps {
+  label: string;
+  field: SortField;
+  sortField: SortField;
+  sortDirection: SortDirection;
+  onSort: (field: SortField) => void;
+}
+
+function SortableHeader({
+  label,
+  field,
+  sortField,
+  sortDirection,
+  onSort,
+}: SortableHeaderProps) {
+  const active = sortField === field;
+  const arrow = active ? (sortDirection === "asc" ? "↑" : "↓") : "↕";
+
+  return (
+    <th
+      className="p-3 text-left cursor-pointer select-none"
+      onClick={() => onSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <span className="text-xs text-gray-500">{arrow}</span>
+      </span>
+    </th>
+  );
 }
