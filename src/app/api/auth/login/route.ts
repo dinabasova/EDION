@@ -3,9 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 
+type LoginBody = {
+  email?: string;
+  password?: string;
+};
+
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password } = (await req.json()) as LoginBody;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -25,7 +30,6 @@ export async function POST(req: Request) {
       );
     }
 
-
     if (!user.verified) {
       return NextResponse.json(
         { error: "Please verify your email before logging in." },
@@ -44,24 +48,33 @@ export async function POST(req: Request) {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET as string,
       { expiresIn: "7d" }
     );
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Login successful",
-      token,
+      token, 
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
-  } catch (err) {
+
+    // HttpOnly cookie for middleware / page protection
+    response.cookies.set("edionaz_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, 
+    });
+
+    return response;
+  } catch (err: unknown) {
     console.error("Login error:", err);
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

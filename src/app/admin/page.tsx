@@ -31,18 +31,18 @@ export default function AdminPage() {
       .finally(() => setLoading(false));
   }, []);
 
-    // Filter + Search + Sort
+  // Filter + Search + Sort
   const visibleData = useMemo(() => {
     let list = [...data];
 
     // filter by type (trial/consultation)
     if (typeFilter !== "all") {
-      list = list.filter((i) => i.type === typeFilter);
+      list = list.filter((i) => i.type === typeFilter.toUpperCase());
     }
 
     // filter by status (new/done)
     if (statusFilter !== "all") {
-      list = list.filter((i) => i.status === statusFilter);
+      list = list.filter((i) => i.status === statusFilter.toUpperCase());
     }
 
     // search
@@ -105,7 +105,7 @@ export default function AdminPage() {
 
   // delete submission
   async function handleDelete(id: string) {
-    const confirmed = window.confirm("Bu məlumatı silmək istəyirsiniz?");
+    const confirmed = window.confirm("Are you sure you want to delete this record?");
     if (!confirmed) return;
 
     const token = localStorage.getItem("edionaz_token");
@@ -116,7 +116,7 @@ export default function AdminPage() {
     });
 
     if (!res.ok) {
-      alert("Silinmə zamanı xəta baş verdi.");
+      alert("An error occurred while deleting.");
       return;
     }
 
@@ -133,11 +133,11 @@ export default function AdminPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ status: "done" }),
+      body: JSON.stringify({ status: "DONE" }),
     });
 
     if (!res.ok) {
-      alert("Status yenilənərkən xəta baş verdi.");
+      alert("An error occurred while updating status.");
       return;
     }
 
@@ -154,10 +154,10 @@ export default function AdminPage() {
       Name: i.name,
       Phone: i.phone,
       Email: i.email,
-      Type: i.type === "trial" ? "Sınaq dərsi" : "Konsultasiya",
-      Status: i.status === "done" ? "Tamamlanıb" : "Yeni",
+      Type: i.type === "TRIAL" ? "Trial lesson" : "Consultation",
+      Status: i.status === "DONE" ? "Done" : "New",
       Message: i.message ?? "",
-      Date: new Date(i.createdAt).toLocaleString("az-AZ"),
+      Date: new Date(i.createdAt).toLocaleString("en-US"),
     }));
 
     const sheet = XLSX.utils.json_to_sheet(rows);
@@ -181,9 +181,9 @@ export default function AdminPage() {
           onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
           className="border px-3 py-1 rounded-full text-sm"
         >
-          <option value="all">Hamısı (tip)</option>
-          <option value="trial">Sınaq dərsi</option>
-          <option value="consultation">Konsultasiya</option>
+          <option value="all">All (type)</option>
+          <option value="trial">Trial lesson</option>
+          <option value="consultation">Consultation</option>
         </select>
 
         {/* status filter */}
@@ -192,15 +192,15 @@ export default function AdminPage() {
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           className="border px-3 py-1 rounded-full text-sm"
         >
-          <option value="all">Hamısı (status)</option>
-          <option value="new">Yeni</option>
-          <option value="done">Tamamlanıb</option>
+          <option value="all">All (status)</option>
+          <option value="new">New</option>
+          <option value="done">Done</option>
         </select>
 
         {/* search */}
         <input
           type="text"
-          placeholder="Axtarış..."
+          placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border px-3 py-1 rounded-full text-sm"
@@ -211,7 +211,7 @@ export default function AdminPage() {
           onClick={handleExcelExport}
           className="rounded-full bg-[#3b3c55] text-white px-4 py-1 text-sm"
         >
-          Excel-ə eksport et
+          Export to Excel
         </button>
       </div>
 
@@ -266,25 +266,25 @@ export default function AdminPage() {
                   <td className="p-3">{item.phone}</td>
                   <td className="p-3">{item.email}</td>
                   <td className="p-3">
-                    {item.type === "trial" ? "Sınaq dərsi" : "Konsultasiya"}
+                    {item.type === "TRIAL" ? "Trial lesson" : "Consultation"}
                   </td>
                   <td className="p-3">
-                    {item.status === "done" ? (
+                    {item.status === "DONE" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">
-                        Tamamlanıb
+                        Done
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-xs">
-                        Yeni
+                        New
                       </span>
                     )}
                   </td>
                   <td className="p-3">{item.message}</td>
                   <td className="p-3">
-                    {new Date(item.createdAt).toLocaleString("az-AZ")}
+                    {new Date(item.createdAt).toLocaleString("en-US")}
                   </td>
                   <td className="p-3 space-x-2">
-                    {item.status !== "done" && (
+                    {item.status !== "DONE" && (
                       <button
                         onClick={() => handleMarkDone(item.id)}
                         className="text-xs text-green-700 hover:underline"
@@ -296,7 +296,7 @@ export default function AdminPage() {
                       onClick={() => handleDelete(item.id)}
                       className="text-xs text-red-600 hover:underline"
                     >
-                      Sil
+                      Delete
                     </button>
                   </td>
                 </tr>

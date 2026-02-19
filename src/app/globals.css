@@ -13,7 +13,7 @@ html {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 20px; 
+  width: 16px; 
 }
 
 ::-webkit-scrollbar-track {
@@ -29,6 +29,7 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #860021;
 }
+
 
 
 ::selection {

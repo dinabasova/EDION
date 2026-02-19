@@ -1,14 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
 
 type JwtUserPayload = {
   id: string;
   email: string;
-  role: string;
+  role: "USER" | "ADMIN" | string;
   iat?: number;
   exp?: number;
 };
+
+function decodeJwt(token: string): JwtUserPayload | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    // atob is available in Edge runtime
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const data = JSON.parse(json) as JwtUserPayload;
+    return data;
+  } catch {
+    return null;
+  }
+}
 
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -16,35 +30,43 @@ export function middleware(req: NextRequest) {
   const isAdminPage = path.startsWith("/admin");
   const isAdminApi = path.startsWith("/api/admin");
 
-  // Admin protection (pages + API)
   if (isAdminPage || isAdminApi) {
-    const authHeader = req.headers.get("authorization");
+    let token: string | undefined;
 
-    if (!authHeader) {
-      // If it's a page → redirect
+    // 1) For admin APIs, try Authorization header first
+    if (isAdminApi) {
+      const authHeader = req.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
+    }
+
+    // 2) Fallback (and for pages): cookie
+    if (!token) {
+      token = req.cookies.get("edionaz_token")?.value;
+    }
+
+    if (!token) {
       if (isAdminPage) {
         return NextResponse.redirect(new URL("/auth/login", req.url));
       }
-      // If it's an API → return JSON
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const token = authHeader.split(" ")[1];
+    const decoded = decodeJwt(token);
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtUserPayload;
-
-      if (decoded.role !== "admin") {
-        if (isAdminPage) {
-          return NextResponse.redirect(new URL("/", req.url));
-        }
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-    } catch {
+    if (!decoded) {
       if (isAdminPage) {
         return NextResponse.redirect(new URL("/auth/login", req.url));
       }
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (decoded.role !== "ADMIN") {
+      if (isAdminPage) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -53,8 +75,8 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/api/protected/:path*",
     "/admin/:path*",
     "/api/admin/:path*",
   ],
 };
+

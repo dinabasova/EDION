@@ -2,12 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 interface RouteContext {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-
 export async function DELETE(_req: Request, context: RouteContext) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     await prisma.contactRequest.delete({
@@ -24,15 +23,15 @@ export async function DELETE(_req: Request, context: RouteContext) {
   }
 }
 
-
 export async function PATCH(req: Request, context: RouteContext) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     const body = await req.json();
     const { status } = body as { status?: string };
 
-    if (status !== "new" && status !== "done") {
+    // ⭐ ENUM FIX
+    if (status !== "NEW" && status !== "DONE") {
       return NextResponse.json(
         { error: "Invalid status value." },
         { status: 400 }

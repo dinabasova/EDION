@@ -41,9 +41,9 @@ export default function Footer() {
               <div className="flex items-center gap-4 mt-4">
                 {[
                   { icon: InstagramIcon, url: "https://www.instagram.com/edionaz/" },
-                  { icon: XIcon, url: "https://x.com/yourprofile" },
                   { icon: FacebookIcon, url: "https://www.facebook.com/edionaz/" },
                   { icon: LinkedinIcon, url: "https://www.linkedin.com/company/edionaz/" },
+                  { icon: XIcon, url: "https://x.com/yourprofile" },
                 ].map(({ icon: Icon, url }, i) => (
                   <AosWrapper key={i} type="zoom-in" delayMs={200 + i * 80}>
                     <a
@@ -77,7 +77,7 @@ export default function Footer() {
             </div>
           </AosWrapper>
 
-          {/* === QUICK LINKS === */}
+          {/* QUICK LINKS */}
           <AosWrapper type="fade-up" delayMs={250}>
             <div>
               <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
@@ -119,7 +119,7 @@ export default function Footer() {
             </div>
           </AosWrapper>
 
-          {/* === CONTACT INFO === */}
+          {/* CONTACT INFO */}
           <AosWrapper type="fade-up" delayMs={350}>
             <div>
               <h3 className="text-xl font-semibold mb-4">Contact Info</h3>
@@ -135,7 +135,7 @@ export default function Footer() {
                     <div className="flex items-center gap-3">
                       <Icon />
                       <span>
-                        {text}
+                        {typeof text === "function" ? text() : text}
                       </span>
                     </div>
                   </AosWrapper>
@@ -144,7 +144,7 @@ export default function Footer() {
             </div>
           </AosWrapper>
 
-          {/* === NEWSLETTER === */}
+          {/* NEWSLETTER */}
           <AosWrapper type="fade-up" delayMs={450}>
             <div>
               <h3 className="text-xl font-semibold mb-4">Newsletter</h3>
@@ -183,7 +183,7 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* === BOTTOM COPYRIGHT BAR === */}
+      {/* BOTTOM COPYRIGHT BAR */}
       
         <div className="bg-[#860021] text-center text-sm py-3 text-[#fffaef]/70">
            <AosWrapper type="zoom-in" delayMs={100}>

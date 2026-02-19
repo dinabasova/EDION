@@ -9,7 +9,7 @@ export default function SocialMediaSection() {
     { href: "https://www.facebook.com/edionaz/", icon: "/social/facebook.png", alt: "Facebook" },
     { href: "https://www.linkedin.com/company/edionaz/", icon: "/social/linkedin.png", alt: "LinkedIn" },
     { href: "https://www.tiktok.com/@edionaz", icon: "/social/tt.png", alt: "TikTok" },
-    { href: "https://tiktok.com", icon: "/social/x.png", alt: "X" },
+    { href: "https://www.threads.com/@edionaz", icon: "/social/threads.png", alt: "Threads" },
   ];
 
   return (

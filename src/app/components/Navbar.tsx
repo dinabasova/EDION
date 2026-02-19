@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Logo */}
         <AosWrapper type="zoom-in-right" delayMs={150} className="flex items-center">
           <Image
-            src="/logo.jpg"
+            src="/transparent logo.png"
             alt="Edionaz logo"
             width={100}
             height={40}
